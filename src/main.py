@@ -16,7 +16,7 @@ logger.setLevel(logging.DEBUG)
 # Helper function and check of the arguments supplied
 def usage():
     """ Print short help """
-    print("iQAS: an integration platform for QoI Assessment as a Service")
+    print("iQAS: an integration platform for QoO Assessment as a Service")
     print("Module: Virtual Sensor Container")
     print("(C) 2017 Antoine Auger\n")
 
