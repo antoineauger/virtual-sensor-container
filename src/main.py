@@ -1,28 +1,31 @@
 import json
 import logging
 import sys
+import threading
 
 from bottle import run, request, response, Bottle
 
-from kafka import KafkaProducer
 from json_utils.json_http_response import generate_sensor_representation, generate_sensor_capabilities, \
     generate_api_response
 from virtual_sensor import VirtualSensor
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 
 # Helper function and check of the arguments supplied
 def usage():
     """ Print short help """
-    print("iQAS: an integration platform for QoO Assessment as a Service")
-    print("Module: Virtual Sensor Container")
-    print("(C) 2017 Antoine Auger\n")
+    print("#################################################################")
+    print("#                                                               #")
+    print("# iQAS: an integration platform for QoO Assessment as a Service #")
+    print("# Module: Virtual Sensor Container                              #")
+    print("# (C) 2017 Antoine Auger                                        #")
+    print("#                                                               #")
+    print("#################################################################\n")
 
-if len(sys.argv) != 4:
-    print('ERROR: Wrong number of parameters')
+if len(sys.argv) < 5 or len(sys.argv) > 6:
     usage()
+    print('ERROR: Wrong number of parameters')
     exit()
 
 
@@ -33,9 +36,9 @@ bottle_port = 8080
 sensor_id = str(sys.argv[1])
 mode = str(sys.argv[2])
 publish_to = str(sys.argv[3])
+obs_generation_mode = str(sys.argv[4])
 sensor = VirtualSensor(sensor_id=sensor_id)
 sensor_endpoint = str(bottle_port) + '/' + sensor_id
-logger.warning("Virtual sensor '{}' successfully deployed".format(sensor_id))
 
 
 # REST APIs for the virtual sensor (see also the corresponding class virtual_sensor.py)
@@ -182,20 +185,21 @@ with open('../etc/sensor.config') as config_file:
     config = json.load(config_file)
     config['publish_to'] = publish_to
     config['mode'] = mode
+    config['obs_generation_mode'] = obs_generation_mode
+    if len(sys.argv) == 6:
+        config['trust'] = int(sys.argv[5])
 
 with open('../etc/capabilities.config') as capabilities_file:
     capabilities = json.load(capabilities_file)
 
-# Kafka producer creation
-kafka_producer = None
-if mode == "KAFKA":
-    kafka_producer = KafkaProducer(bootstrap_servers=config['kafka_bootstrap_server'])
+if __name__ == '__main__':
+    # Start of a bottle server to handle calls to the sensor API
+    threading.Thread(target=run, kwargs=dict(app=app, host=bottle_host, port=bottle_port, quiet=True, reloader=False)).start()
 
-# Virtual sensor creation
-sensor.set_config(enabled=True,
-                  config=config,
-                  kafka_producer=kafka_producer,
-                  capabilities=capabilities)
+    logging.warning("Virtual sensor '{}' successfully deployed".format(sensor_id))
 
-# Start of a bottle server to handle calls to the sensor API
-run(app, host=bottle_host, port=bottle_port, quiet=True)
+    # Virtual sensor creation
+    sensor.set_config(enabled=True,
+                      config=config,
+                      mode=mode,
+                      capabilities=capabilities)

@@ -23,7 +23,7 @@ RUN apt-get upgrade -y
 
 # install python 3 and pip3
 RUN pip3 install --upgrade pip
-RUN pip3 install bottle httplib2
+RUN pip3 install bottle requests
 RUN pip3 install kafka-python
 
 # copy directories

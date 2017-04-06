@@ -1,11 +1,14 @@
+import json
 import logging
 import threading
+
+from kafka import KafkaProducer
+from kafka.errors import KafkaTimeoutError
 
 from json_utils.json_post_observations import post_obs_to_rest_endpoint, post_obs_to_kafka_topic
 from obs_utils.obs_generator import ObsGenerator
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 
 class VirtualSensor(threading.Thread):
@@ -25,7 +28,7 @@ class VirtualSensor(threading.Thread):
 
         # Following attributes will be set later
         self.enabled = None
-        self.kafka_producer = None
+        self.mode = None
         self.config = None
         self.obs_generator = None
         self.mode = None
@@ -33,28 +36,40 @@ class VirtualSensor(threading.Thread):
         self.capabilities = None
         self.obs_consumption = None
         self.infinite_battery = None
+        self.kafka_producer = None
 
     def __del__(self):
+        if self.kafka_producer is not None:
+            self.kafka_producer.close()
         self._stop_event.set()
 
-    def set_config(self, enabled, config, kafka_producer, capabilities):
+    def set_config(self, enabled, config, mode, capabilities):
         self.enabled = enabled
-        self.kafka_producer = kafka_producer
+        self.mode = mode
 
         self.config = config
-        self.obs_generator = ObsGenerator(self.config)
-        self.mode = self.config['mode']  # KAFKA or REST
-        self.publish_to = self.config['publish_to']  # where to send observations
-
         # dict of capabilities
         # e.g.: {'infinite_battery': false, 'frequency': 5.0, 'battery_level': 100, 'obs_consumption': 0.01}
         self.capabilities = capabilities
 
+        self.obs_generator = ObsGenerator(self.config, self.capabilities)
+        self.mode = self.config['mode']  # KAFKA or REST
+        self.publish_to = self.config['publish_to']  # where to send observations
+
         # how much battery is used when sensing one observation
         self.obs_consumption = self.capabilities['obs_consumption']
-
         # if set to True, all battery considerations are ignored
         self.infinite_battery = self.capabilities['infinite_battery']
+
+        # Kafka producer creation
+        if self.mode == "KAFKA":
+            try:
+                self.kafka_producer = KafkaProducer(client_id="virtual-sensor-" + self.sensor_id,
+                                                    acks=0,
+                                                    bootstrap_servers=self.config['kafka_bootstrap_server'],
+                                                    value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+            except KafkaTimeoutError:
+                logging.error("KafkaTimeoutError: Unable to create KafkaProducer.")
 
         self.start()  # We start the sensor's main thread
 
@@ -67,10 +82,9 @@ class VirtualSensor(threading.Thread):
         while not self._stop_event.isSet():
             # TODO : only for testing, remove!
             if self.sensing:
-                logger.error("In sensor {} thread (freq={}s)".format(self.sensor_id, self.capabilities['frequency']))
+                logging.warning("In sensor {} thread (freq={}s)".format(self.sensor_id, self.capabilities['frequency']))
                 obs_dict = self.obs_generator.generate_one_observation(sensor_id=self.sensor_id)
                 if obs_dict is not None:
-
                     if (not self.infinite_battery and float(
                                 self.capabilities['battery_level'] - self.obs_consumption) > 0.0) \
                             or self.infinite_battery:
@@ -84,8 +98,7 @@ class VirtualSensor(threading.Thread):
                             try:
                                 post_obs_to_rest_endpoint(url=self.publish_to, dictionary=obs_dict)
                             except ConnectionRefusedError:
-                                logger.error("ConnectionRefusedError: [Errno 61] Connection refused.")
-
+                                logging.error("ConnectionRefusedError: [Errno 61] Connection refused.")
                     self._stop_event.wait(self.capabilities['frequency'])  # We pause based on sensor's frequency
                 else:
                     self.sensing = False
@@ -118,18 +131,18 @@ class VirtualSensor(threading.Thread):
             if 'frequency' in self.capabilities.keys() and self.capabilities['frequency'] > 0.0:
                 if self.no_more_obs:
                     error_message = "Unable to retrieve more observations for sensor {}.".format(self.sensor_id)
-                    logger.error(error_message)
+                    logging.error(error_message)
                     return "NOK", error_message
                 elif not self.enabled:
                     error_message = "Unable to start the observation acquisition process for sensor {}. " \
                                     "The sensor is disabled.".format(self.sensor_id)
-                    logger.error(error_message)
+                    logging.error(error_message)
                     return "NOK", error_message
                 elif self.sensing:
                     error_message = "Sensor {} is already sensing. " \
                                     "Check its connectivity with the server if you do not " \
                                     "receive any observation.".format(self.sensor_id)
-                    logger.error(error_message)
+                    logging.error(error_message)
                     return "NOK", error_message
                 else:
                     self.sensing = True
@@ -137,7 +150,7 @@ class VirtualSensor(threading.Thread):
             else:
                 error_message = "Unable to retrieve 'frequency' capability for sensor {}. " \
                                 "The acquisition process has not been started.".format(self.sensor_id)
-                logger.error(error_message)
+                logging.error(error_message)
                 return "NOK", error_message
         else:
             self.sensing = False
@@ -156,7 +169,7 @@ class VirtualSensor(threading.Thread):
             return "OK", "", self.capabilities[capability]
         else:
             error_message = "Unknown parameter '{}' for sensor {}".format(capability, self.sensor_id)
-            logger.error(error_message)
+            logging.error(error_message)
             return "NOK", error_message, ""
 
     def set_capability(self, capability, value):
@@ -172,7 +185,7 @@ class VirtualSensor(threading.Thread):
             return "OK", ""
         else:
             error_message = "Unknown parameter '{}' for sensor {}".format(capability, self.sensor_id)
-            logger.error(error_message)
+            logging.error(error_message)
             return "NOK", error_message
 
     def set_url_to_publish(self, new_url):

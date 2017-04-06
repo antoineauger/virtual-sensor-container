@@ -17,24 +17,32 @@ $ docker build --build-arg obsFile=data/my_data_file.txt -t antoineog/docker-vir
 ### Running the docker-virtual-sensor image
 The generic command is:
 ```
-$ docker run -p 127.0.0.1:[PORT]:8080 antoineog/docker-virtual-sensor [SENSOR-ID] [MODE] [PUBLISH-TO]
+$ docker run -p 127.0.0.1:PORT:8080 antoineog/docker-virtual-sensor ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
 ```
 
-You should specify 3 arguments:
+You should specify the following MANDATORY and [OPTIONAL] arguments:
 
-* PORT: The port you want the virtual sensor will be listening to on localhost (to send API requests)
-* SENSOR-ID: The name of the virtual sensor
-* MODE: "KAFKA" or "REST"
-* PUBLISH-TO: The URL or the Kafka topic where the virtual sensor has to send its observations
+* `PORT`: The port you want the virtual sensor will be listening to on localhost (to send API requests)
+* `ID`: The name of the virtual sensor
+* `MODE`: `KAFKA` if you want to publish to a Kafka topic, `REST if you want to POST observation on a listening endpoint
+* `PUBLISH-TO`: The URL or the Kafka topic where the virtual sensor has to send its observations
+* `OBS-GENERATION`: Accepted values are `FILE`, `FILE_WITH_CURRENT_DATE`, `"[-5.0,5.0]"` or `RANDOM`
+* `[TRUST]`: An integer in the range 0-100 that indicates how accurate should be the sensor. 0 = all observations are inaccurate (out of the measurement range), 100 = all observations are accurate. 
+This parameter is optional and should be used in combination with `RANGE` and `RANDOM` observation generation modes only.
 
-For instance, you could type:
+For instance, following commands are valid:
 ```
-$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor "sensor01" "REST" http://10.161.3.183:8081/publish/observation"
+$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor sensor01 REST http://10.161.3.183:8081/publish/observation "[-2,5]"
 ```
-or
+
 ```
-$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor "sensor01" "KAFKA" "temperature"
+$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor sensor01 KAFKA temperature "[-2,5]"
 ```
+
+```
+$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor sensor01 KAFKA temperature "[-100.0,50.0]" 50
+```
+
 To exit the container, just press `CTRL` + `C`.
 
 Instead, if you prefer to run the docker container in background (in detached mode), just add the `-d` option:
