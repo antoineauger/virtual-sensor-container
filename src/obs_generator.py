@@ -1,5 +1,6 @@
-import time
 import random
+
+from utils.time_utils import TimeUtils
 
 
 class ObsGenerator(object):
@@ -38,10 +39,6 @@ class ObsGenerator(object):
             self.finalMin = self.min_bound - ((self.max_bound - self.min_bound) / 2) * (1.0 - self.trust)
             self.finalMax = self.max_bound + ((self.max_bound - self.min_bound) / 2) * (1.0 - self.trust)
 
-    @staticmethod
-    def current_milli_time():
-        return int(round(time.time() * 1000))
-
     def generate_one_observation(self, sensor_id):
         """
         Read a line (i.e., observation) of the specified file.
@@ -69,16 +66,16 @@ class ObsGenerator(object):
                         'date': str(formatted_obs[0]),
                         'value': str('{0:.{1}f}'.format(formatted_obs[1], 3)),
                         'producer': sensor_id,
-                        'timestamps': 'produced:' + str(self.current_milli_time())
+                        'timestamps': 'produced:' + str(TimeUtils.current_milli_time())
                     }
                 )
         else:
             dict_to_send = dict(
                 {
-                    'date': str(self.current_milli_time()),
+                    'date': str(TimeUtils.current_milli_time()),
                     'value': str('{0:.{1}f}'.format(random.uniform(self.finalMin, self.finalMax), 3)),
                     'producer': sensor_id,
-                    'timestamps': 'produced:' + str(self.current_milli_time())
+                    'timestamps': 'produced:' + str(TimeUtils.current_milli_time())
                 }
             )
 
