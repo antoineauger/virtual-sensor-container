@@ -9,7 +9,6 @@ class ObsGenerator(object):
     -read observations from file [OK]
     -generate them according to the etc/sensor.config file [TODO]
     """
-
     def __init__(self, config, capabilities):
         # TODO refactor to allow to swith between modes
         self.config = config

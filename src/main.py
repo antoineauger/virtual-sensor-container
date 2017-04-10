@@ -9,8 +9,6 @@ from json_utils.json_http_response import generate_sensor_representation, genera
     generate_api_response
 from virtual_sensor import VirtualSensor
 
-logging.basicConfig(level=logging.WARNING)
-
 
 # Helper function and check of the arguments supplied
 def usage():
@@ -22,11 +20,6 @@ def usage():
     print("# (C) 2017 Antoine Auger                                        #")
     print("#                                                               #")
     print("#################################################################\n")
-
-if len(sys.argv) < 5 or len(sys.argv) > 6:
-    usage()
-    print('ERROR: Wrong number of parameters')
-    exit()
 
 
 # Bottle parameters
@@ -193,13 +186,20 @@ with open('../etc/capabilities.config') as capabilities_file:
     capabilities = json.load(capabilities_file)
 
 if __name__ == '__main__':
-    # Start of a bottle server to handle calls to the sensor API
-    threading.Thread(target=run, kwargs=dict(app=app, host=bottle_host, port=bottle_port, quiet=True, reloader=False)).start()
+    logging.basicConfig(level=logging.WARNING)
 
-    logging.warning("Virtual sensor '{}' successfully deployed".format(sensor_id))
+    if len(sys.argv) < 5 or len(sys.argv) > 6:
+        usage()
+        print('ERROR: Wrong number of parameters')
+        exit()
+    else:
+        # Start of a bottle server to handle calls to the sensor API
+        threading.Thread(target=run, kwargs=dict(app=app, host=bottle_host, port=bottle_port, quiet=True, reloader=False)).start()
 
-    # Virtual sensor creation
-    sensor.set_config(enabled=True,
-                      config=config,
-                      mode=mode,
-                      capabilities=capabilities)
+        logging.warning("Virtual sensor '{}' successfully deployed".format(sensor_id))
+
+        # Virtual sensor creation
+        sensor.set_config(enabled=True,
+                          config=config,
+                          mode=mode,
+                          capabilities=capabilities)
