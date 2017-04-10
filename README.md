@@ -47,7 +47,7 @@ To exit the container, just press `CTRL` + `C`.
 
 Instead, if you prefer to run the docker container in background (in detached mode), just add the `-d` option:
 ```
-$ docker run -d -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container "sensor01" "http://10.161.3.183:8081/publish/observation"
+$ docker run -d -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 REST http://10.161.3.183:8081/publish/observation FILE
 ```
 
 ### Managing the virtual sensor container
