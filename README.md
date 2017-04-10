@@ -1,8 +1,8 @@
-# docker-virtual-sensor
-A shippable 'virtual sensor' for the iQAS platform.
+# virtual-sensor-container
+A shippable 'virtual sensor'`container for the iQAS platform.
 
-### Building the docker-virtual-sensor image
-Inside the resources root directory (virtual_sensors), type the following command:
+### Building the virtual sensor container
+Inside the resources root directory (`virtual-sensor-container`), type the following command:
 ```
 $ docker build -t antoineog/docker-virtual-sensor .
 ```
@@ -11,13 +11,13 @@ Note: by default, the virtual sensor use a raw temperature dataset from Aarhus.
 If you want to specify your own raw observation file, copy it in the `virtual_sensors/data` directory and add the `--build-arg obsFile=[PATH-TO-YOUR-FILE]` option.
 For instance:
 ```
-$ docker build --build-arg obsFile=data/my_data_file.txt -t antoineog/docker-virtual-sensor .
+$ docker build --build-arg obsFile=data/my_data_file.txt -t antoineog/virtual-sensor-container .
 ```
 
-### Running the docker-virtual-sensor image
+### Running the virtual sensor container
 The generic command is:
 ```
-$ docker run -p 127.0.0.1:PORT:8080 antoineog/docker-virtual-sensor ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
+$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
 ```
 
 You should specify the following MANDATORY and [OPTIONAL] arguments:
@@ -32,25 +32,25 @@ This parameter is optional and should be used in combination with `RANGE` and `R
 
 For instance, following commands are valid:
 ```
-$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor sensor01 REST http://10.161.3.183:8081/publish/observation "[-2,5]"
+$ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 REST http://10.161.3.183:8081/publish/observation "[-2,5]"
 ```
 
 ```
-$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor sensor01 KAFKA temperature "[-2,5]"
+$ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 KAFKA temperature "[-2,5]"
 ```
 
 ```
-$ docker run -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor sensor01 KAFKA temperature "[-100.0,50.0]" 50
+$ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 KAFKA temperature "[-100.0,50.0]" 50
 ```
 
 To exit the container, just press `CTRL` + `C`.
 
 Instead, if you prefer to run the docker container in background (in detached mode), just add the `-d` option:
 ```
-$ docker run -d -p 127.0.0.1:9092:8080 antoineog/docker-virtual-sensor "sensor01" "http://10.161.3.183:8081/publish/observation"
+$ docker run -d -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container "sensor01" "http://10.161.3.183:8081/publish/observation"
 ```
 
-### Managing the docker-virtual-sensor container
+### Managing the virtual sensor container
 
 The following are a quick remainder of basic docker commands.
 
@@ -58,7 +58,7 @@ You can see docker containers and their statuses by running `docker ps`.
 ```
 $ docker ps
 CONTAINER ID        IMAGE                             COMMAND                  CREATED             STATUS              PORTS                      NAMES
-0657fb1624c3        antoineog/docker-virtual-sensor   "/usr/bin/python3 /ho"   47 seconds ago      Up 51 seconds       127.0.0.1:9092->8080/tcp   prickly_roentgen
+0657fb1624c3        antoineog/virtual-sensor-container   "/usr/bin/python3 /ho"   47 seconds ago      Up 51 seconds       127.0.0.1:9092->8080/tcp   prickly_roentgen
 ```
 Note: use the command `docker ps -a` if the list is empty or if you do not find your container.
 
