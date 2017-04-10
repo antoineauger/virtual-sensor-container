@@ -5,8 +5,7 @@ import threading
 
 from bottle import run, request, response, Bottle
 
-from json_utils.json_http_response import generate_sensor_representation, generate_sensor_capabilities, \
-    generate_api_response
+from utils.json_http_response import generate_sensor_representation, generate_api_response, generate_sensor_capabilities
 from virtual_sensor import VirtualSensor
 
 

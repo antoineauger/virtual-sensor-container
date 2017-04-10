@@ -2,11 +2,11 @@ import json
 import logging
 import threading
 
-from json_utils.json_post_observations import post_obs_to_rest_endpoint, post_obs_to_kafka_topic
 from kafka import KafkaProducer
 from kafka.errors import KafkaTimeoutError
 
 from obs_generator import ObsGenerator
+from utils.json_post_observations import post_obs_to_rest_endpoint, post_obs_to_kafka_topic
 
 logging.basicConfig(level=logging.WARNING)
 
