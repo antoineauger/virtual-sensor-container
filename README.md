@@ -4,7 +4,7 @@ A shippable 'virtual sensor'`container for the iQAS platform.
 ### Building the virtual sensor container
 Inside the resources root directory (`virtual-sensor-container`), type the following command:
 ```
-$ docker build -t antoineog/docker-virtual-sensor .
+$ docker build -t antoineog/virtual-sensor-container .
 ```
 
 Note: by default, the virtual sensor use a raw temperature dataset from Aarhus. 
