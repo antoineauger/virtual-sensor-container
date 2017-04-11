@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import sys
 import threading
 
@@ -20,6 +21,18 @@ def usage():
     print("#                                                               #")
     print("#################################################################\n")
 
+# Loading the configuration
+with open('../etc/sensor.config') as config_file:
+    config = json.load(config_file)
+
+# Loading the capabilities of the virtual sensor
+with open('../etc/capabilities.config') as capabilities_file:
+    capabilities = json.load(capabilities_file)
+
+# Disabling proxy for all future connections
+if config['disable_proxy_for_all_requests']:
+    os.environ['NO_PROXY'] = '10.161.3.181'
+    os.environ['no_proxy'] = '10.161.3.181'
 
 # Bottle parameters
 app = Bottle()
@@ -171,18 +184,11 @@ def set_sensor_capability(capability):
                                           value=value)
     return json_response
 
-
-# Configuration of the virtual sensor and its capabilities are imported from file
-with open('../etc/sensor.config') as config_file:
-    config = json.load(config_file)
-    config['publish_to'] = publish_to
-    config['mode'] = mode
-    config['obs_generation_mode'] = obs_generation_mode
-    if len(sys.argv) == 6:
-        config['trust'] = int(sys.argv[5])
-
-with open('../etc/capabilities.config') as capabilities_file:
-    capabilities = json.load(capabilities_file)
+config['publish_to'] = publish_to
+config['mode'] = mode
+config['obs_generation_mode'] = obs_generation_mode
+if len(sys.argv) == 6:
+    config['trust'] = int(sys.argv[5])
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)
