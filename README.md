@@ -17,13 +17,13 @@ $ docker build --build-arg obsFile=data/my_data_file.txt -t antoineog/virtual-se
 ### Running the virtual sensor container
 The generic command is:
 ```
-$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
+$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container SENSOR_ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
 ```
 
 You should specify the following MANDATORY and [OPTIONAL] arguments:
 
 * `PORT`: The port you want the virtual sensor will be listening to on localhost (to send API requests)
-* `ID`: The name of the virtual sensor
+* `SENSOR_ID`: The name of the virtual sensor
 * `MODE`: `KAFKA` if you want to publish to a Kafka topic, `REST if you want to POST observation on a listening endpoint
 * `PUBLISH-TO`: The URL or the Kafka topic where the virtual sensor has to send its observations
 * `OBS-GENERATION`: Accepted values are `FILE`, `FILE_WITH_CURRENT_DATE`, `"[-5.0,5.0]"` or `RANDOM`
