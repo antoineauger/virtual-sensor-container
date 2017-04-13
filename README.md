@@ -1,6 +1,12 @@
 # virtual-sensor-container
 A shippable 'virtual sensor'`container for the iQAS platform.
 
+## System requirements
+
+In order to correctly work, a virtual-sensor-container requires that the following software have been correctly installed and are currently running:
+* Apache Zookeeper `3.4.9` (when publishing to a `KAFKA` topic)
+* Apache Kafka `0.10.2.0` (when publishing to a `KAFKA` topic)
+
 ## Building the virtual sensor container
 Inside the resources root directory (`virtual-sensor-container`), type the following command:
 ```
