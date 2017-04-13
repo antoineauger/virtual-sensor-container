@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import sys
 import threading
 
@@ -28,11 +27,6 @@ with open('../etc/sensor.config') as config_file:
 # Loading the capabilities of the virtual sensor
 with open('../etc/capabilities.config') as capabilities_file:
     capabilities = json.load(capabilities_file)
-
-# Disabling proxy for all future connections
-if config['disable_proxy_for_all_requests']:
-    os.environ['NO_PROXY'] = '10.161.3.181'
-    os.environ['no_proxy'] = '10.161.3.181'
 
 # Bottle parameters
 app = Bottle()

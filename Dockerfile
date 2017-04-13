@@ -5,9 +5,14 @@ FROM ubuntu:16.04
 MAINTAINER Antoine Auger <antoine.auger@isae.fr>
 
 # To pass in arguments rather than here
+ENV HTTP_PROXY http://proxy.isae.fr:3128
 ENV http_proxy http://proxy.isae.fr:3128
+ENV HTTPS_PROXY http://proxy.isae.fr:3128
 ENV https_proxy http://proxy.isae.fr:3128
-ENV no_proxy isae.fr
+ENV NO_PROXY isae.fr 
+ENV no_proxy isae.fr 
+ENV NO_PROXY 10.161.3.181
+ENV no_proxy 10.161.3.181
 
 # create user
 RUN groupadd web

@@ -1,7 +1,7 @@
 # virtual-sensor-container
 A shippable 'virtual sensor'`container for the iQAS platform.
 
-### Building the virtual sensor container
+## Building the virtual sensor container
 Inside the resources root directory (`virtual-sensor-container`), type the following command:
 ```
 $ docker build -t antoineog/virtual-sensor-container .
@@ -14,7 +14,7 @@ For instance:
 $ docker build --build-arg obsFile=data/my_data_file.txt -t antoineog/virtual-sensor-container .
 ```
 
-### Running the virtual sensor container
+## Running the virtual sensor container
 The generic command is:
 ```
 $ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container SENSOR_ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
@@ -50,7 +50,7 @@ Instead, if you prefer to run the docker container in background (in detached mo
 $ docker run -d -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 REST http://10.161.3.183:8081/publish/observation FILE
 ```
 
-### Managing the virtual sensor container
+## Managing the virtual sensor container
 
 The following are a quick remainder of basic docker commands.
 

@@ -29,6 +29,7 @@ class ObsGenerator(object):
             self.min_bound = float(capabilities['min_value'])
             self.max_bound = float(capabilities['max_value'])
         else:
+            self.obs_generation_mode = self.obs_generation_mode.replace("\"", "")
             self.obs_generation_mode = self.obs_generation_mode.replace("[", "")
             self.obs_generation_mode = self.obs_generation_mode.replace("]", "")
             self.min_bound = float(self.obs_generation_mode.split(",")[0])
