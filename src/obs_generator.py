@@ -71,12 +71,13 @@ class ObsGenerator(object):
                     }
                 )
         else:
+            date_now = TimeUtils.current_milli_time()
             dict_to_send = dict(
                 {
-                    'date': str(TimeUtils.current_milli_time()),
+                    'date': '{}'.format(date_now),
                     'value': str('{0:.{1}f}'.format(random.uniform(self.finalMin, self.finalMax), 3)),
                     'producer': sensor_id,
-                    'timestamps': 'produced:' + str(TimeUtils.current_milli_time())
+                    'timestamps': 'produced:{}'.format(date_now)
                 }
             )
 

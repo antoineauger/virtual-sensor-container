@@ -66,6 +66,8 @@ class VirtualSensor(threading.Thread):
             try:
                 self.kafka_producer = KafkaProducer(client_id="virtual-sensor-" + self.sensor_id,
                                                     acks=0,
+                                                    linger_ms=0,
+                                                    batch_size=0,
                                                     bootstrap_servers=self.config['kafka_bootstrap_server'],
                                                     value_serializer=lambda v: json.dumps(v).encode('utf-8'))
             except KafkaTimeoutError:
