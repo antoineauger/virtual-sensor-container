@@ -1,3 +1,4 @@
+import importlib
 import random
 
 from utils.time_utils import TimeUtils
@@ -11,12 +12,13 @@ class ObsGenerator(object):
     -generate them according to the etc/sensor.config file [TODO]
     """
     def __init__(self, config, capabilities):
-        # TODO refactor to allow to swith between modes
         self.config = config
         self.obs_generation_mode = self.config['obs_generation_mode']  # provided from file or generated
         self.path_obs_file = self.config['path_obs_file']  # location of the raw data file
         self.timestamp_in_milliseconds = self.config['timestamp_in_milliseconds']
         self.trust = float(self.config['trust'])/100
+
+        self.adapterInstance = None
 
         self.min_bound = None
         self.max_bound = None
@@ -28,6 +30,10 @@ class ObsGenerator(object):
         elif self.obs_generation_mode == "RANDOM":
             self.min_bound = float(capabilities['min_value'])
             self.max_bound = float(capabilities['max_value'])
+        elif self.obs_generation_mode == "ADAPTER":
+            my_module = importlib.import_module("adapters." + self.config['adapter_file'])
+            adapter_class = getattr(my_module, self.config['adapter_class'])
+            self.adapterInstance = adapter_class('Coucou')
         else:
             self.obs_generation_mode = self.obs_generation_mode.replace("\"", "")
             self.obs_generation_mode = self.obs_generation_mode.replace("[", "")
@@ -70,6 +76,8 @@ class ObsGenerator(object):
                         'timestamps': 'produced:' + str(TimeUtils.current_milli_time())
                     }
                 )
+        elif self.obs_generation_mode == "ADAPTER":
+            pass
         else:
             date_now = TimeUtils.current_milli_time()
             dict_to_send = dict(

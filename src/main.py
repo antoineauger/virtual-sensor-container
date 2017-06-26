@@ -1,3 +1,4 @@
+import importlib
 import json
 import logging
 import sys
@@ -27,6 +28,7 @@ with open('../etc/sensor.config') as config_file:
 # Loading the capabilities of the virtual sensor
 with open('../etc/capabilities.config') as capabilities_file:
     capabilities = json.load(capabilities_file)
+
 
 # Bottle parameters
 app = Bottle()
@@ -184,10 +186,15 @@ config['obs_generation_mode'] = obs_generation_mode
 if len(sys.argv) == 6:
     config['trust'] = int(sys.argv[5])
 
+if obs_generation_mode == 'ADAPTER':
+    config['trust'] = 100
+    config['adapter_file'] = sys.argv[5]
+    config['adapter_class'] = sys.argv[6]
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)
 
-    if len(sys.argv) < 5 or len(sys.argv) > 6:
+    if len(sys.argv) < 5 or len(sys.argv) > 7:
         usage()
         print('ERROR: Wrong number of parameters')
         exit()

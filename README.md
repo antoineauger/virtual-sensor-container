@@ -1,11 +1,33 @@
 # virtual-sensor-container
-A shippable 'virtual sensor'`container for the iQAS platform.
+A shippable "virtual sensor" container for the iQAS platform.
 
 ## System requirements
 
 In order to correctly work, a virtual-sensor-container requires that the following software have been correctly installed and are currently running:
 * Apache Zookeeper `3.4.9` (when publishing to a `KAFKA` topic)
 * Apache Kafka `0.10.2.0` (when publishing to a `KAFKA` topic)
+
+## Project structure
+
+```
+project
+│   README.md
+│   file001.txt    
+│
+└───folder1
+│   │   file011.txt
+│   │   file012.txt
+│   │
+│   └───subfolder1
+│       │   file111.txt
+│       │   file112.txt
+│       │   ...
+│   
+└───folder2
+    │   file021.txt
+    │   file022.txt
+```
+
 
 ## Building the virtual sensor container
 Inside the resources root directory (`virtual-sensor-container`), type the following command:
@@ -23,18 +45,20 @@ $ docker build --build-arg obsFile=data/my_data_file.txt -t antoineog/virtual-se
 ## Running the virtual sensor container
 The generic command is:
 ```
-$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container SENSOR_ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
+$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container SENSOR_ID MODE PUBLISH-TO OBS-GENERATION [TRUST] [ADAPTER-FILENAME] [ADAPTER-CLASSNAME]
 ```
 
 You should specify the following MANDATORY and [OPTIONAL] arguments:
 
 * `PORT`: The port you want the virtual sensor will be listening to on localhost (to send API requests)
 * `SENSOR_ID`: The name of the virtual sensor
-* `MODE`: `KAFKA` if you want to publish to a Kafka topic, `REST if you want to POST observation on a listening endpoint
+* `MODE`: `KAFKA` if you want to publish to a Kafka topic, `REST` if you want to POST observation on a listening endpoint
 * `PUBLISH-TO`: The URL or the Kafka topic where the virtual sensor has to send its observations
-* `OBS-GENERATION`: Accepted values are `FILE`, `FILE_WITH_CURRENT_DATE`, `"[-5.0,5.0]"` or `RANDOM`
+* `OBS-GENERATION`: Accepted values are `FILE`, `FILE_WITH_CURRENT_DATE`, `"[-5.0,5.0]"`, `RANDOM` or `ADAPTER`
 * `[TRUST]`: An integer in the range 0-100 that indicates how accurate should be the sensor. 0 = all observations are inaccurate (out of the measurement range), 100 = all observations are accurate. 
 This parameter is optional and should be used in combination with `RANGE` and `RANDOM` observation generation modes only.
+* `[ADAPTER-FILENAME]`: This parameter is optional and should be used in combination with the `ADAPTER` observation generation mode only.
+* `[ADAPTER-CLASSNAME]`: This parameter is optional and should be used in combination with the `ADAPTER` observation generation mode only.
 
 For instance, following commands are valid:
 ```
@@ -47,6 +71,10 @@ $ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 
 
 ```
 $ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 KAFKA temperature "[-100.0,50.0]" 50
+```
+
+```
+$ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 KAFKA temperature ADAPTER "open_weather_map" "OpenWeatherMap"
 ```
 
 To exit the container, just press `CTRL` + `C`.
