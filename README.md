@@ -4,6 +4,7 @@ A shippable "virtual sensor" container for the iQAS platform.
 ## System requirements
 
 In order to correctly work, a virtual-sensor-container requires that the following software have been correctly installed and are currently running:
+* Docker (see the [official website](https://www.docker.com/) for installation instructions)
 * Apache Zookeeper `3.4.9` (when publishing to a `KAFKA` topic)
 * Apache Kafka `0.10.2.0` (when publishing to a `KAFKA` topic)
 
@@ -11,21 +12,28 @@ In order to correctly work, a virtual-sensor-container requires that the followi
 
 ```
 project
-│   README.md
-│   file001.txt    
 │
-└───folder1
-│   │   file011.txt
-│   │   file012.txt
-│   │
-│   └───subfolder1
-│       │   file111.txt
-│       │   file112.txt
-│       │   ...
-│   
-└───folder2
-    │   file021.txt
-    │   file022.txt
+└───data
+│   │   raw_observations.txt
+│
+└───etc
+│   │   capabilities.config
+│   │   sensor.config
+│
+└───src
+    └───adapters
+    │   │   abstract_adapter.py
+    │   │   open_weather_map.py
+    │   │   ...
+    │
+    └───utils
+    │   │   json_http_response.py
+    │   │   json_post_observations.py
+    │   │   time_utils.py
+    │
+    │   main.py
+    │   obs_generator.py
+    │   virtual_sensor.py
 ```
 
 
@@ -83,6 +91,19 @@ Instead, if you prefer to run the docker container in background (in detached mo
 ```
 $ docker run -d -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 REST http://10.161.3.183:8081/publish/observation FILE
 ```
+
+## Adding new adapters
+
+You should place new adapters in the directory `/src/adapters`. When you create a new adapter, you should make it inherit from the AbstractAdapter class as follows:
+
+```
+from adapters.abstract_adapter import AbstractAdapter
+
+class MyNewAdapter(AbstractAdapter):
+    # Implement abstract methods of AbstractAdapter
+```
+
+You may have a look to the `open_weather_map.py` file for an example.
 
 ## Managing the virtual sensor container
 
