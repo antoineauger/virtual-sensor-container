@@ -23,7 +23,7 @@ project
 └───src
     └───adapters
     │   │   abstract_adapter.py
-    │   │   open_weather_map.py
+    │   │   open_weather_map_temp.py
     │   │   ...
     │
     └───utils
@@ -35,7 +35,6 @@ project
     │   obs_generator.py
     │   virtual_sensor.py
 ```
-
 
 ## Building the virtual sensor container
 Inside the resources root directory (`virtual-sensor-container`), type the following command:
@@ -53,9 +52,8 @@ $ docker build --build-arg obsFile=data/my_data_file.txt -t antoineog/virtual-se
 ## Running the virtual sensor container
 The generic command is:
 ```
-$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container SENSOR_ID MODE PUBLISH-TO OBS-GENERATION [TRUST] [ADAPTER-FILENAME] [ADAPTER-CLASSNAME]
+$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container SENSOR_ID MODE PUBLISH-TO OBS-GENERATION [TRUST]
 ```
-
 You should specify the following MANDATORY and [OPTIONAL] arguments:
 
 * `PORT`: The port you want the virtual sensor will be listening to on localhost (to send API requests)
@@ -63,10 +61,20 @@ You should specify the following MANDATORY and [OPTIONAL] arguments:
 * `MODE`: `KAFKA` if you want to publish to a Kafka topic, `REST` if you want to POST observation on a listening endpoint
 * `PUBLISH-TO`: The URL or the Kafka topic where the virtual sensor has to send its observations
 * `OBS-GENERATION`: Accepted values are `FILE`, `FILE_WITH_CURRENT_DATE`, `"[-5.0,5.0]"`, `RANDOM` or `ADAPTER`
-* `[TRUST]`: An integer in the range 0-100 that indicates how accurate should be the sensor. 0 = all observations are inaccurate (out of the measurement range), 100 = all observations are accurate. 
-This parameter is optional and should be used in combination with `RANGE` and `RANDOM` observation generation modes only.
-* `[ADAPTER-FILENAME]`: This parameter is optional and should be used in combination with the `ADAPTER` observation generation mode only.
-* `[ADAPTER-CLASSNAME]`: This parameter is optional and should be used in combination with the `ADAPTER` observation generation mode only.
+* `[TRUST]`: An integer in the range 0-100 that indicates how accurate should be the sensor. 0 = all observations are inaccurate (out of the measurement range), 100 = all observations are accurate. This parameter is optional and should be used in combination with `RANGE` and `RANDOM` observation generation modes only.
+
+If you use an adapter, the generic command is:
+```
+$ docker run -p 127.0.0.1:PORT:8080 antoineog/virtual-sensor-container SENSOR_ID MODE PUBLISH-TO "ADAPTER" ADAPTER-FILENAME ADAPTER-CLASSNAME ENDPOINT-OPTIONS
+```
+And you should specify the following MANDATORY arguments:
+* `PORT`: The port you want the virtual sensor will be listening to on localhost (to send API requests)
+* `SENSOR_ID`: The name of the virtual sensor
+* `MODE`: `KAFKA` if you want to publish to a Kafka topic, `REST` if you want to POST observation on a listening endpoint
+* `PUBLISH-TO`: The URL or the Kafka topic where the virtual sensor has to send its observations
+* `ADAPTER-FILENAME`: The name of the Python file in the `/src/adapters` directory.
+* `ADAPTER-CLASSNAME`: The class name to instantiate in the Python file specified in `ADAPTER-FILENAME`.
+* `ENDPOINT-OPTIONS`: This corresponds to parameters for a given website, often located after the `?`. E.g., http://BASE_URL?param=ok.
 
 For instance, following commands are valid:
 ```
@@ -82,7 +90,7 @@ $ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 
 ```
 
 ```
-$ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 KAFKA temperature ADAPTER "open_weather_map" "OpenWeatherMap"
+$ docker run -p 127.0.0.1:9092:8080 antoineog/virtual-sensor-container sensor01 KAFKA temperature ADAPTER "open_weather_map_temp" "OpenWeatherMapTemp" "?q=London&appid=..."
 ```
 
 To exit the container, just press `CTRL` + `C`.

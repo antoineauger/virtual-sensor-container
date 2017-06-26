@@ -33,7 +33,7 @@ class ObsGenerator(object):
         elif self.obs_generation_mode == "ADAPTER":
             my_module = importlib.import_module("adapters." + self.config['adapter_file'])
             adapter_class = getattr(my_module, self.config['adapter_class'])
-            self.adapterInstance = adapter_class('Coucou')
+            self.adapterInstance = adapter_class(self.config)
         else:
             self.obs_generation_mode = self.obs_generation_mode.replace("\"", "")
             self.obs_generation_mode = self.obs_generation_mode.replace("[", "")
@@ -42,7 +42,7 @@ class ObsGenerator(object):
             self.max_bound = float(self.obs_generation_mode.split(",")[1])
 
         # If the observations are generated, we have to consider the trust level
-        if self.obs_generation_mode != "FILE" and self.obs_generation_mode != "FILE_WITH_CURRENT_DATE":
+        if self.obs_generation_mode not in ["FILE", "FILE_WITH_CURRENT_DATE", "ADAPTER"]:
             self.finalMin = self.min_bound - ((self.max_bound - self.min_bound) / 2) * (1.0 - self.trust)
             self.finalMax = self.max_bound + ((self.max_bound - self.min_bound) / 2) * (1.0 - self.trust)
 
@@ -77,7 +77,18 @@ class ObsGenerator(object):
                     }
                 )
         elif self.obs_generation_mode == "ADAPTER":
-            pass
+            json_obj = self.adapterInstance.query_endpoint()
+            if json_obj is not None:
+                dict_to_send = dict(
+                    {
+                        'date': '{}'.format(self.adapterInstance.extract_date_from_json(json_obj)),
+                        'value': str('{0:.{1}f}'.format( self.adapterInstance.extract_value_from_json(json_obj), 3)),
+                        'producer': self.config['adapter_file'],
+                        'timestamps': 'produced:{}'.format(self.adapterInstance.extract_date_from_json(json_obj))
+                    }
+                )
+            else:
+                dict_to_send = None
         else:
             date_now = TimeUtils.current_milli_time()
             dict_to_send = dict(

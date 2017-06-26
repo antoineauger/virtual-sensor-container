@@ -190,11 +190,12 @@ if obs_generation_mode == 'ADAPTER':
     config['trust'] = 100
     config['adapter_file'] = sys.argv[5]
     config['adapter_class'] = sys.argv[6]
+    config['endpoint_options'] = sys.argv[7]
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)
 
-    if len(sys.argv) < 5 or len(sys.argv) > 7:
+    if len(sys.argv) < 5 or len(sys.argv) > 8:
         usage()
         print('ERROR: Wrong number of parameters')
         exit()

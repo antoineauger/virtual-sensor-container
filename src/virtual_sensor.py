@@ -82,7 +82,6 @@ class VirtualSensor(threading.Thread):
         """
         # TODO load observations from 1) file or 2) generate according input
         while not self._stop_event.isSet():
-            # TODO : only for testing, remove!
             if self.sensing:
                 logging.warning("In sensor {} thread (freq={}s)".format(self.sensor_id, self.capabilities['frequency']))
                 obs_dict = self.obs_generator.generate_one_observation(sensor_id=self.sensor_id)
