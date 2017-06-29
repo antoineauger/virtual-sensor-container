@@ -36,7 +36,6 @@ class OpenWeatherMapTemp(AbstractAdapter):
                                         timeout=self.TIMEOUT)
 
                 if response.status_code == requests.codes.ok and response.json() is not None:
-                    success = True
                     try:
                         return response.json()
                     except ValueError:
@@ -49,3 +48,6 @@ class OpenWeatherMapTemp(AbstractAdapter):
 
     def extract_value_from_json(self, json):
         return float(json['main']['temp'])
+
+    def extract_producer_from_json(self, json, adapter_file):
+        return adapter_file

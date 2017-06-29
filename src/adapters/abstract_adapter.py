@@ -31,3 +31,6 @@ class AbstractAdapter(object):
 
     def extract_value_from_json(self, json):
         raise NotImplementedError("Should have implemented this")
+
+    def extract_producer_from_json(self, json, adapter_file):
+        raise NotImplementedError("Should have implemented this")

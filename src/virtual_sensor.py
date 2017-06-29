@@ -102,9 +102,12 @@ class VirtualSensor(threading.Thread):
                                 logging.error("ConnectionRefusedError: [Errno 61] Connection refused.")
                     self._stop_event.wait(self.capabilities['frequency'])  # We pause based on sensor's frequency
                 else:
-                    self.sensing = False
-                    self.no_more_obs = True
-                    self._stop_event.set()
+                    if self.config['obs_generation_mode'] != "ADAPTER":
+                        self.sensing = False
+                        self.no_more_obs = True
+                        self._stop_event.set()
+                    else:
+                        self._stop_event.wait(self.capabilities['frequency'])  # We pause based on sensor's frequency
 
     # The following methods represent the API of the virtual sensor
     # Sensor state (connection and observations measurement)

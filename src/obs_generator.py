@@ -82,8 +82,8 @@ class ObsGenerator(object):
                 dict_to_send = dict(
                     {
                         'date': '{}'.format(self.adapterInstance.extract_date_from_json(json_obj)),
-                        'value': str('{0:.{1}f}'.format( self.adapterInstance.extract_value_from_json(json_obj), 3)),
-                        'producer': self.config['adapter_file'],
+                        'value': str('{0:.{1}f}'.format(self.adapterInstance.extract_value_from_json(json_obj), 3)),
+                        'producer': self.adapterInstance.extract_producer_from_json(json_obj, self.config['adapter_file']),
                         'timestamps': 'produced:{}'.format(self.adapterInstance.extract_date_from_json(json_obj))
                     }
                 )
