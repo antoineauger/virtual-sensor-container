@@ -51,7 +51,7 @@ Inside the resources root directory (`virtual-sensor-container`), type the follo
 $ docker build -t antoineog/virtual-sensor-container .
 ```
 
-Note: by default, the virtual sensor use a raw temperature dataset from Aarhus. 
+Note: by default, the virtual sensor use a raw temperature dataset from Aarhus.
 If you want to specify your own raw observation file, copy it in the `virtual_sensors/data` directory and add the `--build-arg obsFile=[PATH-TO-YOUR-FILE]` option.
 For instance:
 ```
@@ -126,7 +126,7 @@ You may have a look to the `open_weather_map.py` file for an example.
 
 The following are a quick remainder of basic docker commands.
 
-You can see docker containers and their statuses by running `docker ps`. 
+You can see docker containers and their statuses by running `docker ps`.
 ```
 $ docker ps
 CONTAINER ID        IMAGE                             COMMAND                  CREATED             STATUS              PORTS                      NAMES
@@ -150,6 +150,6 @@ prickly_roentgen
 
 The iQAS platform have been developed during the PhD thesis of [Antoine Auger](https://personnel.isae-supaero.fr/antoine-auger/?lang=en) at ISAE-SUPAERO (2014-2017).
 
-This research was supported in part by the French Ministry of Defence through financial support of the Direction Générale de l’Armement (DGA). 
+This research was supported in part by the French Ministry of Defence through financial support of the Direction Générale de l’Armement (DGA).
 
-![iqas_logo](https://github.com/antoineauger/iqas-platform/blob/master/src/main/resources/web/figures/banniere.png?raw=true "Banniere")
+![banniere](https://github.com/antoineauger/iqas-platform/blob/master/src/main/resources/web/figures/banniere.png?raw=true "Banniere")
