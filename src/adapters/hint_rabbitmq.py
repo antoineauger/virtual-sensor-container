@@ -21,6 +21,13 @@ class HINTRabbitMQ(AbstractAdapter):
     def __init__(self, config):
         super().__init__(self.MAX_CALL_BY_MINUTE, self.TIMEOUT, self.NB_MAX_RETRIES)
         self.OPTIONS = config['endpoint_options']
+        self.parameters = pika.URLParameters(self.URL_BASE_RABBITMQ_SERVER)
+        self.rabbit_connection = pika.BlockingConnection(self.parameters)
+        self.channel = self.rabbit_connection.channel()
+
+    def __del__(self):
+        self.channel
+        self.rabbit_connection.close()
 
     def query_endpoint(self):
 
@@ -29,19 +36,13 @@ class HINTRabbitMQ(AbstractAdapter):
                 self.first_call_timestamp_window = TimeUtils.current_milli_time()
             self.counter_calls += 1
 
-            rabbit_connection = pika.BlockingConnection(pika.URLParameters(self.URL_BASE_RABBITMQ_SERVER))
-            channel = rabbit_connection.channel()
-            method_frame, header_frame, body = channel.basic_get(queue=self.OPTIONS)
+            method_frame, header_frame, body = self.channel.basic_get(queue=self.OPTIONS, no_ack=True)
 
             if method_frame is None:
-                rabbit_connection.close()
                 return None
             elif method_frame.NAME == 'Basic.GetEmpty':
-                rabbit_connection.close()
                 return None
             else:
-                channel.basic_ack(delivery_tag=method_frame.delivery_tag)
-                rabbit_connection.close()
                 recordObject = json.loads(body)
                 return recordObject['payload']
         else:
