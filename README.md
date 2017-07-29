@@ -12,7 +12,7 @@ In total, 5 Github projects form the iQAS ecosystem:
 
 ## System requirements
 
-In order to correctly work, a virtual-sensor-container requires that the following software have been correctly installed and are currently running:
+In order to correctly work, a virtual-sensor-container requires that the following software has been correctly installed and are currently running:
 * Docker (see the [official website](https://www.docker.com/) for installation instructions)
 * Apache Zookeeper `3.4.9` (when publishing to a `KAFKA` topic)
 * Apache Kafka `0.10.2.0` (when publishing to a `KAFKA` topic)
