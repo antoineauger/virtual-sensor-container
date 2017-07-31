@@ -21,6 +21,13 @@ class AbstractAdapter(object):
         else:
             return False
 
+    # 2 useful methdos for async ADAPTERS e.g., RabbitMQ for instance
+    def set_special_async_callback(self, kafka_producer, publish_to):
+        pass
+
+    def pull_endpoint(self):
+        pass
+
     # The following methods should be implemented when creating a new adapter from scratch.
 
     def query_endpoint(self):

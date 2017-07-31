@@ -201,7 +201,8 @@ if __name__ == '__main__':
         exit()
     else:
         # Start of a bottle server to handle calls to the sensor API
-        threading.Thread(target=run, kwargs=dict(app=app, host=bottle_host, port=bottle_port, quiet=True, reloader=False)).start()
+        if config['obs_generation_mode'] != 'ADAPTER' or (config['obs_generation_mode'] == 'ADAPTER' and config['adapter_file'] != 'hint_rabbitmq'):
+            threading.Thread(target=run, kwargs=dict(app=app, host=bottle_host, port=bottle_port, quiet=True, reloader=False)).start()
 
         logging.warning("Virtual sensor '{}' successfully deployed".format(sensor_id))
 

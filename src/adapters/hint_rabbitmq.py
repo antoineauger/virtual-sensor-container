@@ -3,8 +3,7 @@ import json
 import pika
 
 from adapters.abstract_adapter import AbstractAdapter
-from utils.time_utils import TimeUtils
-
+from utils.json_post_observations import post_obs_to_kafka_topic
 
 class HINTRabbitMQ(AbstractAdapter):
     """
@@ -17,6 +16,24 @@ class HINTRabbitMQ(AbstractAdapter):
     MAX_CALL_BY_MINUTE = 60
     TIMEOUT = None
     NB_MAX_RETRIES = 2
+    kafka_producer = None
+    publish_to = None
+
+    def on_message(self, channel, method_frame, header_frame, body):
+        json_obj = json.loads(body)['payload']
+        if json_obj is not None:
+            dict_to_send = dict(
+                {
+                    'date': '{}'.format(self.extract_date_from_json(json_obj)),
+                    'value': str('{0:.{1}f}'.format(self.extract_value_from_json(json_obj), 3)),
+                    'producer': self.extract_producer_from_json(json_obj, 'hint_rabbitmq'),
+                    'timestamps': 'produced:{}'.format(self.extract_date_from_json(json_obj))
+                }
+            )
+            post_obs_to_kafka_topic(kafka_producer=self.kafka_producer,
+                                    topic=self.publish_to,
+                                    dictionary=dict_to_send)
+            channel.basic_ack(delivery_tag=method_frame.delivery_tag)
 
     def __init__(self, config):
         super().__init__(self.MAX_CALL_BY_MINUTE, self.TIMEOUT, self.NB_MAX_RETRIES)
@@ -26,27 +43,18 @@ class HINTRabbitMQ(AbstractAdapter):
         self.channel = self.rabbit_connection.channel()
 
     def __del__(self):
-        self.channel
         self.rabbit_connection.close()
 
-    def query_endpoint(self):
+    def set_special_async_callback(self, kafka_producer, publish_to):
+        self.kafka_producer = kafka_producer
+        self.publish_to = publish_to
 
-        if self.is_a_call_possible():
-            if self.first_call_timestamp_window is None:
-                self.first_call_timestamp_window = TimeUtils.current_milli_time()
-            self.counter_calls += 1
-
-            method_frame, header_frame, body = self.channel.basic_get(queue=self.OPTIONS, no_ack=True)
-
-            if method_frame is None:
-                return None
-            elif method_frame.NAME == 'Basic.GetEmpty':
-                return None
-            else:
-                recordObject = json.loads(body)
-                return recordObject['payload']
-        else:
-            return None
+    def pull_endpoint(self):
+        self.channel.basic_consume(self.on_message, self.OPTIONS)
+        try:
+            self.channel.start_consuming()
+        except KeyboardInterrupt:
+            self.channel.stop_consuming()
 
     def extract_date_from_json(self, json):
         return int(json['date'])

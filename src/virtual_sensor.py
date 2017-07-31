@@ -73,7 +73,11 @@ class VirtualSensor(threading.Thread):
             except KafkaTimeoutError:
                 logging.error("KafkaTimeoutError: Unable to create KafkaProducer.")
 
-        self.start()  # We start the sensor's main thread
+        if self.config['obs_generation_mode'] == "ADAPTER" and self.config['adapter_file'] == 'hint_rabbitmq':
+            self.obs_generator.adapterInstance.set_special_async_callback(self.kafka_producer, self.publish_to)
+            self.obs_generator.adapterInstance.pull_endpoint()
+        else:
+            self.start()  # We start the sensor's main thread
 
     # TODO: replace this main thread by a Python scheduler?
     def run(self):
@@ -100,7 +104,8 @@ class VirtualSensor(threading.Thread):
                                 post_obs_to_rest_endpoint(url=self.publish_to, dictionary=obs_dict)
                             except ConnectionRefusedError:
                                 logging.error("ConnectionRefusedError: [Errno 61] Connection refused.")
-                    self._stop_event.wait(self.capabilities['frequency'])  # We pause based on sensor's frequency
+                    if self.config['obs_generation_mode'] != "ADAPTER" or (self.config['obs_generation_mode'] == "ADAPTER" and self.config['adapter_file'] != 'hint_rabbitmq'):
+                        self._stop_event.wait(self.capabilities['frequency'])  # We pause based on sensor's frequency
                 else:
                     if self.config['obs_generation_mode'] != "ADAPTER":
                         self.sensing = False
