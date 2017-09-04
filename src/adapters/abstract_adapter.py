@@ -21,14 +21,15 @@ class AbstractAdapter(object):
         else:
             return False
 
-    # 2 useful methdos for async ADAPTERS e.g., RabbitMQ for instance
+    # Asynchronous adapters (e.g., RabbitMQ)
+
     def set_special_async_callback(self, kafka_producer, publish_to):
-        pass
+        raise NotImplementedError("Should have implemented this")
 
     def pull_endpoint(self):
-        pass
+        raise NotImplementedError("Should have implemented this")
 
-    # The following methods should be implemented when creating a new adapter from scratch.
+    # Synchronous adapters
 
     def query_endpoint(self):
         raise NotImplementedError("Should have implemented this")
